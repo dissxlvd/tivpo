@@ -27,6 +27,20 @@ class Coin():
     percentChange90d: str
 
 
+def getDate():
+    session = requests.Session()
+    session.headers.update(headers)
+
+    try:
+        response = session.get(url, params=parameters)
+        cmcResp = json.loads(response.text)
+        respDate = cmcResp['status']
+        return respDate
+
+    except (requests.ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
+        print(e)
+
+
 def initData():
     session = requests.Session()
     session.headers.update(headers)

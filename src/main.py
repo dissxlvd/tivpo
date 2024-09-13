@@ -1,3 +1,4 @@
+import math
 import tkinter as tk
 from tkinter import ttk
 
@@ -10,26 +11,25 @@ import datafetch
 def getDetails(coin, i):
     print(i)
     coinDetails = tk.Tk()
-    coinDetails.geometry('300x200')
     coinDetails.title('coin '+coin.coinSymbol)
 
     coinPrice = ttk.Label(coinDetails, text='Price: '+str(round(coin.coinPriceCurrent, 3))+' RUB')
-    coinPrice.grid(column=0, row=0)
+    coinPrice.pack()
     coinPC1h = ttk.Label(coinDetails, text='Percent change (1h): ' + str(round(coin.percentChange1h, 3)) + '%')
-    coinPC1h.grid(column=0, row=1)
-    coinPC24h = ttk.Label(coinDetails, text='Percent change (24h): ' + str(round(coin.percentChange24h, 3)) + '%')
-    coinPC24h.grid(column=0, row=2)
+    coinPC1h.pack()
+    coinPC24h = ttk.Label(coinDetails, text='Percent change (24h): ' + str(math.floor(coin.percentChange24h)) + '%')
+    coinPC24h.pack()
     coinPC7d = ttk.Label(coinDetails, text='Percent change (7d): ' + str(round(coin.percentChange7d, 3)) + '%')
-    coinPC7d.grid(column=0, row=3)
+    coinPC7d.pack()
     coinPC30d = ttk.Label(coinDetails, text='Percent change (30d): ' + str(round(coin.percentChange30d, 3)) + '%')
-    coinPC30d.grid(column=0, row=4)
+    coinPC30d.pack()
 
 
 def main():
     root = tk.Tk()
     root.resizable(tk.FALSE, tk.FALSE)
-    root.title('tivpo')
     root.configure(bg='#d0d0d0')
+    root.title(datafetch.getDate())
 
     contentFrame = ttk.Frame(root, padding=5, relief='sunken')
     contentFrame.grid(column=0, row=0)
