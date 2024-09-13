@@ -4,22 +4,31 @@ from tkinter import ttk
 import requests
 import json
 
-url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
-parameters = {
-    'start': '1',
-    'limit': '20',
-    'convert': 'RUB'
-}
-headers = {
-    'Accepts': 'application/json',
-    'X-CMC_PRO_API_KEY': '311b36ad-315d-4d41-80b1-cc6cc31646a8',
-}
+import datafetch
+
+
+def getDetails(coin, i):
+    print(i)
+    coinDetails = tk.Tk()
+    coinDetails.geometry('300x200')
+    coinDetails.title('coin '+coin.coinSymbol)
+
+    coinPrice = ttk.Label(coinDetails, text='Price: '+str(round(coin.coinPriceCurrent, 3))+' RUB')
+    coinPrice.grid(column=0, row=0)
+    coinPC1h = ttk.Label(coinDetails, text='Percent change (1h): ' + str(round(coin.percentChange1h, 3)) + '%')
+    coinPC1h.grid(column=0, row=1)
+    coinPC24h = ttk.Label(coinDetails, text='Percent change (24h): ' + str(round(coin.percentChange24h, 3)) + '%')
+    coinPC24h.grid(column=0, row=2)
+    coinPC7d = ttk.Label(coinDetails, text='Percent change (7d): ' + str(round(coin.percentChange7d, 3)) + '%')
+    coinPC7d.grid(column=0, row=3)
+    coinPC30d = ttk.Label(coinDetails, text='Percent change (30d): ' + str(round(coin.percentChange30d, 3)) + '%')
+    coinPC30d.grid(column=0, row=4)
 
 
 def main():
     root = tk.Tk()
     root.resizable(tk.FALSE, tk.FALSE)
-    root.geometry('1200x900')
+    root.title('tivpo')
     root.configure(bg='#d0d0d0')
 
     contentFrame = ttk.Frame(root, padding=5, relief='sunken')
@@ -34,55 +43,30 @@ def main():
     btnHolder = ttk.Frame(contentFrame, padding=10, height=400, relief='ridge')
     btnHolder.grid(column=1, row=0)
 
-    getDataBtn = ttk.Button(btnHolder, text='Get CMC data')
+    coinBundle = datafetch.initData()
+    getDataBtn = ttk.Button(btnHolder, text='Get CMC data', command=datafetch.initData)
     getDataBtn.grid(column=0, row=0)
 
     quitBtn = ttk.Button(btnHolder, text='Quit', command=root.destroy)
     quitBtn.grid(column=0, row=1)
 
-    session = requests.Session()
-    session.headers.update(headers)
+    headerRank = ttk.Label(coinHolder, text='Rank')
+    headerRank.grid(column=0, row=0)
+    headerName = ttk.Label(coinHolder, text='Coin Name')
+    headerName.grid(column=1, row=0)
 
-    try:
-        response = session.get(url, params=parameters)
-        root.title(response.headers.get('Date'))
-        cmcResp = json.loads(response.text)
-
-        # Dict
-        # respStatus = cmcResp['status']
-
-        # List
-        respData = cmcResp['data']
-
-        headerRank = ttk.Label(coinHolder, text='Rank')
-        headerRank.grid(column=0, row=0)
-        headerName = ttk.Label(coinHolder, text='Coin Name')
-        headerName.grid(column=1, row=0)
-
-        for i in range(len(respData)):
-            print(respData[i])
-            coinName = respData[i]['name']
-            coinSymbol = respData[i]['symbol']
-            coinRank = respData[i]['cmc_rank']
-            coinPriceCurrent = respData[i]['quote']['RUB']['price']
-            percentChange1h = respData[i]['quote']['RUB']['percent_change_1h']
-            percentChange24h = respData[i]['quote']['RUB']['percent_change_24h']
-            percentChange7d = respData[i]['quote']['RUB']['percent_change_7d']
-            percentChange30d = respData[i]['quote']['RUB']['percent_change_30d']
-            percentChange60d = respData[i]['quote']['RUB']['percent_change_60d']
-            percentChange90d = respData[i]['quote']['RUB']['percent_change_90d']
-            # print(coinName, coinSymbol, coinRank, coinPriceCurrent, percentChange1h, percentChange24h, percentChange7d,
-            #       percentChange30d, percentChange60d, percentChange90d)
-
-            testLabel = ttk.Label(coinHolder, text=coinRank)
-            testLabel.grid(column=0, row=i+1)
-            testLabel2 = ttk.Label(coinHolder, text=coinName)
-            testLabel2.grid(column=1, row=i+1)
-            textBtn = ttk.Button(coinHolder, text=coinSymbol + ' details', width=12)
-            textBtn.grid(column=2, row=i+1)
-
-    except (requests.ConnectionError, requests.Timeout, requests.TooManyRedirects) as e:
-        print(e)
+    for i in range(len(coinBundle)):
+        testLabel = ttk.Label(coinHolder,
+                              text=coinBundle[i].coinRank)
+        testLabel.grid(column=0, row=i+1)
+        testLabel2 = ttk.Label(coinHolder,
+                               text=coinBundle[i].coinName)
+        testLabel2.grid(column=1, row=i+1)
+        textBtn = ttk.Button(coinHolder,
+                             text=coinBundle[i].coinSymbol + ' details',
+                             width=12,
+                             command=lambda: getDetails(coinBundle[i], i))
+        textBtn.grid(column=2, row=i+1)
 
     root.mainloop()
 
